@@ -355,6 +355,41 @@
     .radio-group.playing .sound-wave { animation: none; }
   }
 
+  /* tiny light show off the radio's antenna while a song plays */
+  .disco-lights {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+    filter: drop-shadow(0 0 3px rgba(255, 243, 194, .8));
+  }
+  .radio-group.playing .disco-lights {
+    opacity: 1;
+    animation: discoHue 4s linear infinite;
+  }
+  @keyframes discoHue {
+    0%   { filter: drop-shadow(0 0 3px rgba(255, 243, 194, .8)) hue-rotate(0deg); }
+    100% { filter: drop-shadow(0 0 3px rgba(255, 243, 194, .8)) hue-rotate(360deg); }
+  }
+  .disco-ray, .disco-spark { opacity: .15; }
+  .radio-group.playing .disco-ray,
+  .radio-group.playing .disco-spark {
+    animation: discoBlink 1.3s ease-in-out infinite;
+  }
+  .dr1, .ds1 { animation-delay: 0s; }
+  .dr2, .ds2 { animation-delay: .22s; }
+  .dr3       { animation-delay: .44s; }
+  .dr4, .ds3 { animation-delay: .66s; }
+  .dr5       { animation-delay: .88s; }
+  @keyframes discoBlink {
+    0%, 100% { opacity: .15; }
+    50%      { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .radio-group.playing .disco-lights { animation: none; }
+    .radio-group.playing .disco-ray,
+    .radio-group.playing .disco-spark { animation: none; opacity: .85; }
+  }
+
   .screen-canvas {
     position: absolute;
     left: 55.67%; top: 5.58%;
@@ -859,6 +894,17 @@
           <circle class="sound-wave w1" cx="188" cy="152" r="6.5"/>
           <circle class="sound-wave w2" cx="188" cy="152" r="6.5"/>
           <circle class="sound-wave w3" cx="188" cy="152" r="6.5"/>
+          <!-- tiny light show off the antenna tip, only lit while the song plays -->
+          <g class="disco-lights">
+            <line class="disco-ray dr1" x1="193" y1="128" x2="193" y2="112" stroke="#ffdb7a" stroke-width="2" stroke-linecap="round"/>
+            <line class="disco-ray dr2" x1="193" y1="128" x2="184" y2="115" stroke="#f2a6c6" stroke-width="2" stroke-linecap="round"/>
+            <line class="disco-ray dr3" x1="193" y1="128" x2="202" y2="115" stroke="#bcd8cc" stroke-width="2" stroke-linecap="round"/>
+            <line class="disco-ray dr4" x1="193" y1="128" x2="179" y2="124" stroke="#e3cff7" stroke-width="1.6" stroke-linecap="round"/>
+            <line class="disco-ray dr5" x1="193" y1="128" x2="207" y2="124" stroke="#ffb4c6" stroke-width="1.6" stroke-linecap="round"/>
+            <circle class="disco-spark ds1" cx="193" cy="110" r="1.6" fill="#fff3c2"/>
+            <circle class="disco-spark ds2" cx="182" cy="113" r="1.3" fill="#f2a6c6"/>
+            <circle class="disco-spark ds3" cx="204" cy="113" r="1.3" fill="#bcd8cc"/>
+          </g>
           <g id="radioBtn" class="radio-btn" role="button" tabindex="0" aria-label="Play the radio" aria-pressed="false">
             <circle cx="204" cy="152" r="6.5" fill="#fff6e6" stroke="#a8632c" stroke-width=".8"/>
             <path id="radioPlayIcon" d="M202 148 L202 156 L209 152 Z" fill="#a8632c"/>
@@ -1150,9 +1196,12 @@ letter.addEventListener('click', e => { if (e.target === letter) letter.close();
     const contentHeight = bottom - top;
     if (contentWidth <= 0 || contentHeight <= 0) return;
 
-    const vv = window.visualViewport;
-    const vw = vv ? vv.width : window.innerWidth;
-    const vh = vv ? vv.height : window.innerHeight;
+    // Use the layout viewport (not window.visualViewport) so pinch-zooming
+    // doesn't trigger a re-fit: visualViewport's width/height shrink as the
+    // user zooms in, which was fighting the zoom and making the picnic,
+    // bouquet, radio and screen appear to slide backward mid-gesture.
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
     const margin = 20; // small safety margin so nothing touches the edge
     const availW = Math.max(1, vw - margin);
@@ -1173,7 +1222,6 @@ letter.addEventListener('click', e => { if (e.target === letter) letter.close();
   window.addEventListener('load', scheduleFit);
   window.addEventListener('resize', scheduleFit);
   window.addEventListener('orientationchange', scheduleFit);
-  if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFit);
   // the bouquet's opening animation can take a little over a second to settle
   stage.addEventListener('click', () => setTimeout(scheduleFit, 1700));
