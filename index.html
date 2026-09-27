@@ -350,11 +350,6 @@
     75%  { opacity: 0;  transform: scale(2.3); }
     100% { opacity: 0;  transform: scale(2.3); }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .radio-group.playing { animation: none; }
-    .radio-group.playing .sound-wave { animation: none; }
-  }
-
   /* tiny light show off the radio's antenna while a song plays */
   .disco-lights {
     opacity: 0;
@@ -383,11 +378,6 @@
   @keyframes discoBlink {
     0%, 100% { opacity: .15; }
     50%      { opacity: 1; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .radio-group.playing .disco-lights { animation: none; }
-    .radio-group.playing .disco-ray,
-    .radio-group.playing .disco-spark { animation: none; opacity: .85; }
   }
 
   .screen-canvas {
@@ -465,14 +455,6 @@
     color: var(--paper-ink); background: none;
     border: 1.5px solid currentColor; border-radius: 999px;
     padding: .2rem 1.1rem; cursor: pointer;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      transition-duration: .01ms !important;
-      transition-delay: 0s !important;
-      animation-duration: .01ms !important;
-    }
   }
 
   /* ---------- butterflies ---------- */
@@ -953,8 +935,7 @@
 <script>
 /* ===========================================================
    EDIT THESE
-   photos: one per flower (5). Use file paths like "photos/us-1.jpg"
-           or leave null to show a placeholder.
+   photos: one per flower (8). Use file paths like "photos/us-1.jpg"
    =========================================================== */
 const CONFIG = {
   photos: ["Our photos/her10.jpeg", "Our photos/her9.jpeg", "Our photos/her3.jpeg", "Our photos/her4.jpeg", "Our photos/her5.jpeg", "Our photos/her6.jpeg", "Our photos/her7.jpeg", "Our photos/her8.jpeg"],
@@ -964,9 +945,6 @@ const CONFIG = {
       "I can’t believe it’s been only and already 1 month, I miss you like hellll, and it feels like I’ve known you for much longer",
       "I don’t know how you do it but you are amazing. Every time I look into your eyes it feels like my thoughts are fading away 🥺, it’s almost magical. Talking to you is so easy that I don’t have to think sometimes.",
       "You just came one day and decided to steal my heart with no warning, now it’s all yours so I hope you are happy with it",
-      "We've wanting to go on a picnic so I thought it would be a good idea to make one for you, don't jusge my little artsy art HAHAHHAHA it's hard to make them on code.",
-      "It's so sad that you have to live so far away but you make it easier to do LDR, but still I would touch and kiss you all the time if I could.",
-      "I MISS YOU A LOTTTTTTT 🥰🥰🥰",
       "Thank you for being my favorite person, and for every photo we still haven't taken yet.",
       "Happy first month babe and to many more",
       "I love you ❤️❤️."
@@ -975,7 +953,7 @@ const CONFIG = {
   }
 };
 
-/* ---------- stems + leaves, generated from SPOTS so any count/layout works ---------- */
+/* ---------- stems + leaves ---------- */
 const SPOTS = [
   { x: 50, y: 9,  r: -4,  sc: .88, c: { light: '#ffd6e2', mid: '#f7a1bb', deep: '#e56b93', inner: '#ffe9f0' } }, // rose - top, farthest back
   { x: 23, y: 16, r: -15, sc: .92, c: { light: '#e6d8ff', mid: '#bfa3f0', deep: '#8f6fd6', inner: '#f3ecff' } }, // lilac - upper left
@@ -1015,7 +993,6 @@ SPOTS.forEach((s, i) => {
   stem.setAttribute('stroke-width', Math.abs(s.x - 50) < 3 ? '1.1' : '0.85');
   stemsG.appendChild(stem);
 
-  // one leaf partway up the curve, angled to the stem and flipped by side
   const side = s.x >= 50 ? 1 : -1;
   const t = 0.6;
   const pt = bez(p0, p1, p2, t);
@@ -1092,7 +1069,7 @@ let screenShownIndex = null;
 function showOnScreen(src, i) {
   projScene.classList.add('on');
   screenImg.classList.remove('active');
-  void screenImg.offsetWidth; // restart the pop-in animation even if a photo is already showing
+  void screenImg.offsetWidth; 
   screenImg.src = src;
   screenImg.alt = `Photo ${i + 1} of us, enlarged`;
   screenPlaceholder.classList.add('hide');
