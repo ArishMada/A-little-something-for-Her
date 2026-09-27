@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A bouquet for you</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght@1,9..144,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+
+    --bg-top: #fbeef3;
+    --bg-bottom: #e4d5f2;
+    --glow: rgba(255, 214, 163, .65);
+    --ink: #4a2c5e;
+    --ink-soft: #7d5f91;
+    --paper: #fffaf3;
+    --paper-ink: #4a2c5e;
+    --tape: rgba(240, 139, 171, .5);
+    --shadow: rgba(74, 44, 94, .3);
+    --stem: #4f9a76;
+    --leaf: #5aa383;
+    --wrap-a: #bcd8cc;
+    --wrap-b: #d9ede4;
+    --wrap-c: #e8f5ef;
+    --ribbon: #d45d86;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg-top: #2d1c42;
+      --bg-bottom: #140c21;
+      --glow: rgba(224, 140, 196, .26);
+      --ink: #f3e4f5;
+      --ink-soft: #b9a0c9;
+      --shadow: rgba(0, 0, 0, .5);
+      --stem: #5cae86;
+      --leaf: #4f9b78;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg-top: #2d1c42;
+    --bg-bottom: #140c21;
+    --glow: rgba(224, 140, 196, .26);
+    --ink: #f3e4f5;
+    --ink-soft: #b9a0c9;
+    --shadow: rgba(0, 0, 0, .5);
+    --stem: #5cae86;
+    --leaf: #4f9b78;
+  }
+  html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); overflow: hidden; }
+  body {
+    height: 100svh;
+    margin: 0;
+    background-color: #7a5478;
+    color: var(--ink);
+    font-family: 'Fraunces', Georgia, serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    overflow: hidden;
+    padding: 1.5rem 0;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .park-bg {
+    position: fixed; inset: 0; z-index: -1;
+    overflow: hidden;
+  }
+  .park-bg svg { width: 100%; height: 100%; display: block; }
+  .fairy-lights circle, .fireflies circle {
+    animation: twinkle 2.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 3px currentColor);
+  }
+  .fairy-lights circle:nth-child(2n) { animation-duration: 3.4s; animation-delay: -1s; }
+  .fairy-lights circle:nth-child(3n) { animation-duration: 2.1s; animation-delay: -.5s; }
+  .fireflies circle:nth-child(2n) { animation-duration: 4.2s; animation-delay: -2s; }
+  .fireflies circle:nth-child(3n) { animation-duration: 3.1s; animation-delay: -1.4s; }
+  @keyframes twinkle {
+    0%, 100% { opacity: .35; }
+    50% { opacity: 1; }
+  }
+
+  /* park-bg swing: rigid chains+seat rotate about the top-bar pivot, swinging on their own.
+     Keyframe values are sampled from a sine curve, so a plain linear timing-function
+     already gives pendulum weight: slow near the peaks, fast through the center. */
+  .swing-a, .swing-b {
+    transform-box: view-box;
+    animation-name: swingMotion;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .swing-a { transform-origin: 1080px 630px; animation-duration: 4.6s; }
+  .swing-b { transform-origin: 1132px 630px; animation-duration: 5.3s; animation-delay: -1.8s; }
+  @keyframes swingMotion {
+    0%   { transform: rotate(0deg); }
+    5%   { transform: rotate(1.9deg); }
+    10%  { transform: rotate(3.5deg); }
+    15%  { transform: rotate(4.9deg); }
+    20%  { transform: rotate(5.7deg); }
+    25%  { transform: rotate(6deg); }
+    30%  { transform: rotate(5.7deg); }
+    35%  { transform: rotate(4.9deg); }
+    40%  { transform: rotate(3.5deg); }
+    45%  { transform: rotate(1.9deg); }
+    50%  { transform: rotate(0deg); }
+    55%  { transform: rotate(-1.9deg); }
+    60%  { transform: rotate(-3.5deg); }
+    65%  { transform: rotate(-4.9deg); }
+    70%  { transform: rotate(-5.7deg); }
+    75%  { transform: rotate(-6deg); }
+    80%  { transform: rotate(-5.7deg); }
+    85%  { transform: rotate(-4.9deg); }
+    90%  { transform: rotate(-3.5deg); }
+    95%  { transform: rotate(-1.9deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  /* ---------- side-by-side layout ---------- */
+  .layout {
+    display: flex; flex-wrap: wrap;
+    align-items: flex-end; justify-content: center;
+    gap: 5rem; width: 100%;
+    position: relative; z-index: 2;
+    pointer-events: none;
+    transform-origin: 50% 50%;
+  }
+  .layout > .stage, .layout > .screen { pointer-events: auto; }
+
+  /* ---------- bouquet ---------- */
+  .stage {
+    position: relative;
+    container-type: inline-size;
+    width: min(65vw, 475px, calc((100svh - 190px) * 0.68));
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transform: translateY(16vh);
+  }
+  @media (max-width: 860px) {
+    .stage { width: min(81vw, 420px, calc((100svh - 280px) * 0.68)); transform: translateY(12vh); }
+  }
+  .glow {
+    position: absolute;
+    inset: -8% -30% 8% -30%;
+    background: radial-gradient(closest-side, var(--glow), transparent);
+    pointer-events: none;
+  }
+  .bouquet { position: relative; width: 100%; aspect-ratio: 100 / 130; }
+  .bouquet::after {
+    content: "";
+    position: absolute; left: 50%; bottom: -2%;
+    width: 70%; height: 6%;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(20, 15, 25, .35), transparent 75%);
+    pointer-events: none;
+  }
+  .layer {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    overflow: visible; pointer-events: none;
+  }
+
+  .flower {
+    position: absolute;
+    width: 25cqw; height: 25cqw;
+    left: calc(var(--x) * 1cqw - 12.5cqw);
+    top: calc(var(--y) * 1cqw - 12.5cqw);
+    transform-origin: var(--ox, 50%) var(--oy, 50%);
+    transform: scale(calc(var(--fs, 1) * .8)) rotate(calc(var(--r, 0deg) - 20deg));
+    transition: transform .4s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .open .flower {
+    transform: scale(var(--fs, 1)) rotate(var(--r, 0deg));
+    transition: transform 1s cubic-bezier(.2, .8, .2, 1) var(--d);
+  }
+  .open .flower:hover,
+  .open .flower:focus-visible {
+    transform: scale(calc(var(--fs, 1) * 1.45)) rotate(var(--r, 0deg));
+    transition: transform .35s cubic-bezier(.2, 1.2, .3, 1);
+    z-index: 40;
+    outline: none;
+  }
+
+  .petal {
+    position: absolute;
+    left: calc(50% - var(--w) / 2);
+    bottom: 50%;
+    width: var(--w); height: var(--h);
+    transform-origin: 50% 100%;
+    border-radius: 50% 50% 48% 48% / 62% 62% 38% 38%;
+    background: linear-gradient(to top, var(--deep), var(--mid) 90%);
+    box-shadow: inset 0 0 0 .3cqw rgba(255, 255, 255, .28), 0 .2cqw .5cqw rgba(0, 0, 0, .1);
+    transform: rotate(calc(var(--a) * .08)) scale(.6);
+    transition: transform .4s ease;
+  }
+  .petal.outer { --w: 9cqw; --h: 10cqw; }
+  .petal.mid {
+    --w: 7.5cqw; --h: 8.3cqw; --pd: .08s;
+    background: linear-gradient(to top, var(--mid), var(--light) 92%);
+    border-radius: 50% 50% 48% 48% / 66% 66% 34% 34%;
+  }
+  .petal.inner {
+    --w: 5.8cqw; --h: 6.4cqw; --pd: .16s;
+    background: linear-gradient(to top, var(--light), var(--inner));
+    border-radius: 50% 50% 48% 48% / 70% 70% 30% 30%;
+  }
+  .open .petal {
+    transform: rotate(var(--a)) scale(1);
+    transition: transform 1s cubic-bezier(.2, 1.1, .3, 1) calc(var(--d) + var(--pd, 0s));
+  }
+
+  .core {
+    position: absolute; left: 50%; top: 50%;
+    width: 10cqw; height: 10cqw;
+    margin: -5cqw 0 0 -5cqw;
+    box-sizing: border-box;
+    border: .8cqw solid #fff4d6;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #fff4d6;
+    box-shadow: 0 .6cqw 1.6cqw rgba(60, 20, 60, .35);
+    transform: scale(0);
+    transition: transform .25s ease;
+  }
+  .open .core {
+    transform: scale(1);
+    transition: transform .7s cubic-bezier(.2, 1.3, .4, 1) calc(var(--d) + .5s);
+  }
+  .core img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+  .core img:hover, .core img:focus-visible { box-shadow: inset 0 0 0 999px rgba(255,255,255,.08); filter: brightness(1.06); outline: none; }
+
+  /* ---------- the note ---------- */
+  .note {
+    position: absolute;
+    left: calc(50% - 17cqw);
+    top: calc(46cqw - 13cqw);
+    width: 34cqw; height: 26cqw;
+    padding: 0; border: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: var(--paper);
+    color: var(--paper-ink);
+    border-radius: 1cqw;
+    box-shadow: 0 1.5cqw 4cqw var(--shadow);
+    font-family: 'Caveat', 'Segoe Script', cursive;
+    cursor: pointer;
+    opacity: 0; visibility: hidden;
+    transform: translateY(4cqw) rotate(-3deg) scale(.2);
+    transition: transform .25s ease, opacity .2s ease, visibility 0s linear .25s;
+  }
+  .note::before {
+    content: ""; position: absolute; top: -1.6cqw; left: calc(50% - 5cqw);
+    width: 10cqw; height: 3.4cqw; background: var(--tape);
+    transform: rotate(2deg);
+  }
+  .note-title { font-size: 9cqw; font-weight: 700; line-height: 1; }
+  .note-sub { font-size: 5cqw; font-weight: 500; opacity: .7; margin-top: 1cqw; }
+  .note svg { width: 5cqw; height: 5cqw; margin-top: .6cqw; fill: var(--ribbon); }
+  .open .note {
+    opacity: 1; visibility: visible;
+    transform: rotate(-3deg);
+    transition: transform .8s cubic-bezier(.2, 1.3, .4, 1) 1.5s, opacity .4s ease 1.5s, visibility 0s linear 1.5s;
+  }
+
+  /* ---------- side projector + screen scene ---------- */
+  .screen {
+    width: min(46vw, 445px);
+    flex-shrink: 0;
+    margin-bottom: 2vw;
+    filter: saturate(.88) brightness(1.03);
+    opacity: .92;
+  }
+  @media (max-width: 860px) {
+    .screen { width: min(94vw, 424px); margin-bottom: 0; }
+  }
+  .projector-scene { position: relative; width: 100%; }
+  .projector-scene::after {
+    content: "";
+    position: absolute; left: 50%; bottom: -8%;
+    width: 80%; height: 10%;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(20, 15, 25, .3), transparent 75%);
+    pointer-events: none;
+  }
+  .scene-art { width: 100%; display: block; filter: drop-shadow(0 1.2rem 2rem var(--shadow)); }
+
+  .beam-poly {
+    fill: url(#beamGrad);
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+  .on .beam-poly {
+    opacity: .95;
+    animation: beamFlicker .55s ease;
+  }
+  .beam-halo { fill: #fff3cf; }
+  .on .beam-halo { opacity: .35; }
+  .beam-hotspot { opacity: 0; }
+  .on .beam-hotspot { opacity: .8; }
+  @keyframes beamFlicker {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    35%  { opacity: .2; }
+    55%  { opacity: .95; }
+    100% { opacity: .95; }
+  }
+
+  .lens-glass { fill: #0d0d16; transition: fill .3s ease; }
+  .on .lens-glass { fill: #fff3c2; }
+  .radio-btn { cursor: pointer; }
+  .radio-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .power-led { fill: #b6564f; transition: fill .3s ease; }
+  .on .power-led { fill: #6be3a8; }
+
+  /* little radio: gentle groove + sound ripples while the song is playing */
+  .radio-group {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .radio-group.playing {
+    animation: radioGroove 1.3s ease-in-out infinite;
+  }
+  @keyframes radioGroove {
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    25%      { transform: rotate(-4deg) translateY(-.4px); }
+    50%      { transform: rotate(0deg) translateY(-1px); }
+    75%      { transform: rotate(4deg) translateY(-.4px); }
+  }
+  .sound-wave {
+    fill: none;
+    stroke: #fff6e6;
+    stroke-width: 1.2;
+    opacity: 0;
+    pointer-events: none;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .radio-group.playing .sound-wave {
+    animation: soundWave 1.8s ease-out infinite;
+  }
+  .radio-group.playing .sound-wave.w2 { animation-delay: .5s; }
+  .radio-group.playing .sound-wave.w3 { animation-delay: 1s; }
+  @keyframes soundWave {
+    0%   { opacity: .8; transform: scale(1); }
+    75%  { opacity: 0;  transform: scale(2.3); }
+    100% { opacity: 0;  transform: scale(2.3); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .radio-group.playing { animation: none; }
+    .radio-group.playing .sound-wave { animation: none; }
+  }
+
+  .screen-canvas {
+    position: absolute;
+    left: 55.67%; top: 5.58%;
+    width: 38.67%; height: 50.70%;
+    overflow: hidden;
+  }
+  .screen-canvas::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+    background: repeating-linear-gradient(rgba(255, 255, 255, 0) 0, rgba(255, 255, 255, 0) 2px, rgba(0, 0, 0, .035) 3px);
+  }
+  .screen-canvas img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    filter: brightness(1.12) contrast(1.04);
+    transform: scale(1.05);
+    transition: opacity .35s ease, transform .5s ease;
+  }
+  .screen-canvas img.active { opacity: 1; transform: scale(1); }
+  .screen-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: .4rem; text-align: center; padding: .8rem;
+    color: #a89f8c;
+    font: italic 500 .82rem 'Fraunces', Georgia, serif;
+    transition: opacity .3s ease;
+  }
+  .screen-placeholder svg { width: 1.4rem; height: 1.4rem; fill: #a89f8c; opacity: .7; }
+  .screen-placeholder.hide { opacity: 0; }
+
+  /* ---------- controls + letter ---------- */
+  .hint {
+    font: italic 400 1.05rem/1.2 'Fraunces', Georgia, serif;
+    color: #fff;
+    background: rgba(40, 25, 40, .28);
+    backdrop-filter: blur(3px);
+    border: 0; padding: .55rem 1.2rem;
+    border-radius: 999px; cursor: pointer;
+    position: absolute; z-index: 2;
+    top: 88%; left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .hint:hover { background: rgba(40, 25, 40, .4); }
+  .hint:focus-visible, .note:focus-visible, .close:focus-visible {
+    outline: 2px solid var(--ink); outline-offset: 3px;
+  }
+
+  dialog.letter {
+    border: 0; padding: 0; background: transparent;
+    width: 100%; max-width: min(92vw, 420px);
+    overflow: visible; color: var(--paper-ink);
+  }
+  dialog.letter::backdrop { background: rgba(30, 12, 40, .55); backdrop-filter: blur(3px); }
+  dialog.letter[open] { animation: rise .45s cubic-bezier(.2, 1.1, .3, 1); }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px) rotate(2deg) scale(.96); } }
+  .sheet {
+    background: var(--paper);
+    border-radius: 6px;
+    padding: 2rem 1.75rem 1.4rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .4);
+    font-family: 'Caveat', 'Segoe Script', cursive;
+    font-size: 1.55rem; line-height: 1.35;
+    transform: rotate(-1deg);
+    max-height: 80svh; overflow-y: auto;
+  }
+  .sheet h2 { margin: 0 0 .7rem; font-size: 2.1rem; font-weight: 700; }
+  .sheet p { margin: 0 0 .9rem; }
+  .sheet .sign { text-align: right; margin-bottom: 1rem; }
+  .close {
+    font: 500 1.2rem 'Caveat', cursive;
+    color: var(--paper-ink); background: none;
+    border: 1.5px solid currentColor; border-radius: 999px;
+    padding: .2rem 1.1rem; cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition-duration: .01ms !important;
+      transition-delay: 0s !important;
+      animation-duration: .01ms !important;
+    }
+  }
+
+  /* ---------- butterflies ---------- */
+  .butterflies { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 5; }
+  .bfly {
+    position: absolute; top: 0; left: 0;
+    width: 7vw; max-width: 34px; min-width: 22px;
+    filter: drop-shadow(0 .1rem .2rem rgba(60, 20, 60, .18));
+  }
+  .bfly path { fill: var(--w); }
+  .bfly .wings {
+    transform-origin: 50% 50%;
+    animation: flap .32s ease-in-out infinite alternate;
+  }
+  .p1 { animation: fly1 24s ease-in-out infinite; }
+  .p2 { animation: fly2 29s ease-in-out infinite; animation-delay: -6s; }
+  .p3 { animation: fly3 19s ease-in-out infinite; animation-delay: -11s; }
+  .p4 { animation: fly4 26s ease-in-out infinite; animation-delay: -3s; }
+  .p5 { animation: fly5 22s ease-in-out infinite; animation-delay: -15s; }
+
+  @keyframes flap {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(.55); }
+  }
+  @keyframes fly1 {
+    0%   { transform: translate(8vw, 78vh)  rotate(-8deg); }
+    22%  { transform: translate(28vw, 18vh) rotate(12deg); }
+    48%  { transform: translate(68vw, 30vh) rotate(-6deg); }
+    74%  { transform: translate(84vw, 70vh) rotate(10deg); }
+    100% { transform: translate(8vw, 78vh)  rotate(-8deg); }
+  }
+  @keyframes fly2 {
+    0%   { transform: translate(90vw, 12vh) rotate(150deg); }
+    26%  { transform: translate(58vw, 55vh) rotate(190deg); }
+    52%  { transform: translate(18vw, 82vh) rotate(140deg); }
+    78%  { transform: translate(14vw, 28vh) rotate(200deg); }
+    100% { transform: translate(90vw, 12vh) rotate(150deg); }
+  }
+  @keyframes fly3 {
+    0%   { transform: translate(46vw, 8vh)  rotate(20deg); }
+    30%  { transform: translate(66vw, 22vh) rotate(-10deg); }
+    62%  { transform: translate(34vw, 18vh) rotate(15deg); }
+    100% { transform: translate(46vw, 8vh)  rotate(20deg); }
+  }
+  @keyframes fly4 {
+    0%   { transform: translate(4vw, 48vh)  rotate(-15deg); }
+    35%  { transform: translate(24vw, 12vh) rotate(20deg); }
+    65%  { transform: translate(48vw, 58vh) rotate(-12deg); }
+    100% { transform: translate(4vw, 48vh)  rotate(-15deg); }
+  }
+  @keyframes fly5 {
+    0%   { transform: translate(94vw, 46vh) rotate(160deg); }
+    30%  { transform: translate(74vw, 84vh) rotate(190deg); }
+    60%  { transform: translate(52vw, 38vh) rotate(150deg); }
+    100% { transform: translate(94vw, 46vh) rotate(160deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- sunset park backdrop -->
+<div class="park-bg" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#332b5c"/>
+        <stop offset="40%" stop-color="#7a5478"/>
+        <stop offset="68%" stop-color="#d9805f"/>
+        <stop offset="100%" stop-color="#ffc98a"/>
+      </linearGradient>
+      <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#8a9a5b"/>
+        <stop offset="35%" stop-color="#6d8a52"/>
+        <stop offset="100%" stop-color="#3c5636"/>
+      </linearGradient>
+      <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"  stop-color="#fff2c4" stop-opacity=".9"/>
+        <stop offset="45%" stop-color="#ffdca0" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#ffdca0" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="treeShade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6e7d47"/>
+        <stop offset="100%" stop-color="#384a2c"/>
+      </linearGradient>
+    </defs>
+
+    <!-- sky + sun + clouds -->
+    <rect x="0" y="0" width="1600" height="640" fill="url(#skyGrad)"/>
+
+    <circle cx="1180" cy="560" r="170" fill="url(#sunGlow)"/>
+    <circle cx="1180" cy="560" r="72" fill="#ffe3ae"/>
+    <g fill="#f6cfd8" opacity=".45">
+      <ellipse cx="260" cy="160" rx="120" ry="26"/>
+      <ellipse cx="360" cy="180" rx="90" ry="20"/>
+      <ellipse cx="980" cy="120" rx="140" ry="24"/>
+      <ellipse cx="1100" cy="145" rx="90" ry="18"/>
+    </g>
+
+    <!-- big rolling hills, far in the distance, sitting in front of the sun -->
+    <path d="M0 530 Q220 430 440 495 Q680 410 920 485 Q1160 415 1380 490 Q1510 445 1600 480 L1600 640 L0 640 Z"
+          fill="#8a7292"/>
+
+
+    <!-- hazy distant tree line -->
+    <path d="M0 610 Q40 570 90 600 Q140 560 190 605 Q250 565 300 600 Q360 575 410 605
+             Q470 560 520 600 Q580 570 630 605 Q690 565 740 600 Q800 575 850 605
+             Q910 560 960 602 Q1020 572 1070 605 Q1130 565 1180 602 Q1240 575 1300 605
+             Q1360 565 1410 602 Q1470 578 1530 605 Q1570 585 1600 600 L1600 640 L0 640 Z"
+          fill="#6b5470" opacity=".8"/>
+
+    <!-- ground -->
+    <rect x="0" y="615" width="1600" height="285" fill="url(#groundGrad)"/>
+    <path d="M0 660 Q400 630 800 655 T1600 645 L1600 900 L0 900 Z" fill="#5a7a48" opacity=".55"/>
+
+    <!-- a couple of trees further back, smaller and hazier for distance -->
+    <g opacity=".55" transform="translate(555 350) scale(.4)">
+      <rect x="95" y="560" width="30" height="150" fill="#5c4632"/>
+      <ellipse cx="110" cy="470" rx="130" ry="110" fill="url(#treeShade)"/>
+      <ellipse cx="60" cy="510" rx="80" ry="70" fill="url(#treeShade)"/>
+      <ellipse cx="170" cy="500" rx="90" ry="75" fill="url(#treeShade)"/>
+      <ellipse cx="150" cy="410" rx="70" ry="55" fill="#7d8f52" opacity=".7"/>
+    </g>
+    <g opacity=".48" transform="translate(966 426) scale(.28)">
+      <rect x="95" y="560" width="30" height="150" fill="#5c4632"/>
+      <ellipse cx="110" cy="470" rx="130" ry="110" fill="url(#treeShade)"/>
+      <ellipse cx="60" cy="510" rx="80" ry="70" fill="url(#treeShade)"/>
+      <ellipse cx="170" cy="500" rx="90" ry="75" fill="url(#treeShade)"/>
+      <ellipse cx="150" cy="410" rx="70" ry="55" fill="#7d8f52" opacity=".7"/>
+    </g>
+
+    <!-- park bench, mid-ground right -->
+    <g transform="translate(1290 700)" opacity=".92">
+      <rect x="0" y="0" width="130" height="8" rx="2" fill="#8a6a4a"/>
+      <rect x="0" y="16" width="130" height="8" rx="2" fill="#7a5c3f"/>
+      <rect x="0" y="-46" width="130" height="8" rx="2" fill="#8a6a4a"/>
+      <rect x="0" y="-30" width="130" height="8" rx="2" fill="#7a5c3f"/>
+      <rect x="6" y="0" width="8" height="34" fill="#5c4632"/>
+      <rect x="116" y="0" width="8" height="34" fill="#5c4632"/>
+      <rect x="6" y="-46" width="8" height="46" fill="#5c4632"/>
+      <rect x="116" y="-46" width="8" height="46" fill="#5c4632"/>
+    </g>
+
+    <!-- swing set, slightly hazy, swinging automatically -->
+    <g opacity=".72" transform="translate(-860 -90) translate(1105 695) scale(.9) translate(-1105 -695)">
+      <path d="M1150 760 L1180 630" fill="none" stroke="#4a3b33" stroke-width="7" stroke-linecap="round"/>
+      <path d="M1210 760 L1180 630" fill="none" stroke="#4a3b33" stroke-width="7" stroke-linecap="round"/>
+      <g class="swing-a">
+        <line x1="1070" y1="630" x2="1064" y2="720" stroke="#6b5a4a" stroke-width="2.5"/>
+        <line x1="1090" y1="630" x2="1096" y2="720" stroke="#6b5a4a" stroke-width="2.5"/>
+        <rect x="1058" y="720" width="44" height="8" rx="3" fill="#8a6a4a"/>
+      </g>
+      <g class="swing-b">
+        <line x1="1122" y1="630" x2="1116" y2="720" stroke="#6b5a4a" stroke-width="2.5"/>
+        <line x1="1142" y1="630" x2="1148" y2="720" stroke="#6b5a4a" stroke-width="2.5"/>
+        <rect x="1110" y="720" width="44" height="8" rx="3" fill="#8a6a4a"/>
+      </g>
+      <path d="M1000 760 L1030 630 L1060 630 L1090 760" fill="none" stroke="#4a3b33" stroke-width="7" stroke-linecap="round"/>
+      <path d="M1150 760 L1120 630 L1090 630 L1060 760" fill="none" stroke="#4a3b33" stroke-width="7" stroke-linecap="round" opacity="0"/>
+      <line x1="1030" y1="630" x2="1180" y2="630" stroke="#4a3b33" stroke-width="7" stroke-linecap="round"/>
+    </g>
+
+    <!-- foreground trees flanking the scene -->
+    <g transform="translate(0 -18) translate(110 710) scale(.93) translate(-110 -710)">
+      <rect x="97" y="578" width="26" height="132" fill="#5c4632"/>
+      <ellipse cx="110" cy="485" rx="112" ry="95" fill="url(#treeShade)"/>
+      <ellipse cx="66" cy="518" rx="68" ry="58" fill="url(#treeShade)"/>
+      <ellipse cx="162" cy="508" rx="76" ry="63" fill="url(#treeShade)"/>
+      <ellipse cx="148" cy="422" rx="58" ry="46" fill="#7d8f52" opacity=".7"/>
+    </g>
+
+    <g>
+      <rect x="1476" y="522" width="32" height="188" fill="#5c4632"/>
+      <ellipse cx="1493" cy="435" rx="138" ry="118" fill="url(#treeShade)"/>
+      <ellipse cx="1436" cy="482" rx="84" ry="72" fill="url(#treeShade)"/>
+      <ellipse cx="1552" cy="472" rx="94" ry="78" fill="url(#treeShade)"/>
+      <ellipse cx="1460" cy="378" rx="72" ry="56" fill="#8a9c5c" opacity=".65"/>
+    </g>
+
+    <!-- soft lights drifting between the trees -->
+    <g class="fairy-lights" fill="#ffe9a8">
+      <circle cx="260" cy="443" r="4"/><circle cx="360" cy="465" r="4"/><circle cx="470" cy="484" r="4"/>
+      <circle cx="590" cy="500" r="4"/><circle cx="720" cy="512" r="4"/><circle cx="860" cy="518" r="4"/>
+      <circle cx="1000" cy="516" r="4"/><circle cx="1140" cy="505" r="4"/><circle cx="1270" cy="484" r="4"/>
+      <circle cx="1390" cy="450" r="4"/>
+    </g>
+
+    <!-- fireflies drifting low over the grass -->
+    <g class="fireflies" fill="#e8ffb0">
+      <circle cx="230" cy="760" r="3.5"/>
+      <circle cx="480" cy="800" r="3"/>
+      <circle cx="720" cy="770" r="3.5"/>
+      <circle cx="900" cy="820" r="3"/>
+      <circle cx="1350" cy="790" r="3.5"/>
+      <circle cx="1520" cy="750" r="3"/>
+    </g>
+
+    <!-- a few grass tufts for texture -->
+    <g stroke="#48622f" stroke-width="3" stroke-linecap="round" opacity=".7">
+      <path d="M60 895 L55 875 M65 895 L65 872 M70 895 L76 878"/>
+      <path d="M420 880 L415 862 M425 880 L425 858 M430 880 L436 864"/>
+      <path d="M760 900 L755 880 M765 900 L765 876 M770 900 L776 882"/>
+      <path d="M1230 890 L1225 870 M1235 890 L1235 866 M1240 890 L1246 872"/>
+      <path d="M1560 895 L1555 875 M1565 895 L1565 872 M1570 895 L1576 878"/>
+    </g>
+  </svg>
+</div>
+
+<div class="layout">
+<div class="stage" id="stage">
+  <div class="glow"></div>
+  <div class="bouquet">
+
+    <!-- behind the flowers: stems + leaves are generated by the script to match the flower list -->
+    <svg class="layer" id="backLayer" viewBox="0 0 100 130" style="overflow:visible" aria-hidden="true">
+      <g id="stemsG" fill="none" stroke="var(--stem)" stroke-width="1" stroke-linecap="round"></g>
+      <!-- baby's breath sprigs, pushed out to the outer edges -->
+      <g fill="#fdf6ff" stroke="rgba(120,80,140,.35)" stroke-width=".25">
+        <circle cx="-3" cy="42" r="1.7"/><circle cx="-5.6" cy="38.5" r="1.4"/><circle cx="-0.2" cy="37" r="1.5"/><circle cx="-6.4" cy="45" r="1.3"/><circle cx="1.5" cy="46" r="1.2"/>
+        <circle cx="103" cy="42" r="1.7"/><circle cx="105.6" cy="38.5" r="1.4"/><circle cx="100.2" cy="37" r="1.5"/><circle cx="106.4" cy="45" r="1.3"/><circle cx="98.5" cy="46" r="1.2"/>
+      </g>
+      <defs>
+        <g id="leaf">
+          <path d="M0 0 C3 -3.2 9 -3.2 13 0 C9 3.2 3 3.2 0 0Z" fill="var(--leaf)"/>
+          <path d="M0 0 L12 0" stroke="rgba(255,255,255,.35)" stroke-width=".3"/>
+        </g>
+        <g id="filler-a">
+          <ellipse cx="0" cy="-2.6" rx="1.35" ry="2.2"/>
+          <ellipse cx="0" cy="-2.6" rx="1.35" ry="2.2" transform="rotate(72)"/>
+          <ellipse cx="0" cy="-2.6" rx="1.35" ry="2.2" transform="rotate(144)"/>
+          <ellipse cx="0" cy="-2.6" rx="1.35" ry="2.2" transform="rotate(216)"/>
+          <ellipse cx="0" cy="-2.6" rx="1.35" ry="2.2" transform="rotate(288)"/>
+          <circle r="1" fill="#fff6e0"/>
+        </g>
+      </defs>
+      <g id="leavesG"></g>
+      <!-- thin stems for the filler blossoms -->
+      <g fill="none" stroke="var(--stem)" stroke-width=".5" stroke-linecap="round" opacity=".85">
+        <path d="M50 98 Q27.45 91 9 78"/>
+        <path d="M50 98 Q72.55 91 91 78"/>
+        <path d="M50 98 Q50 92.4 50 82"/>
+        <path d="M50 98 Q33.5 94.5 20 88"/>
+        <path d="M50 98 Q66.5 94.5 80 88"/>
+        <path d="M50 98 Q29.1 82.95 12 55"/>
+        <path d="M50 98 Q70.9 82.6 88 54"/>
+        <path d="M50 98 Q42.3 74.9 36 32"/>
+        <path d="M50 98 Q57.7 74.2 64 30"/>
+        <path d="M50 98 Q35.15 66.85 23 9"/>
+        <path d="M50 98 Q64.85 66.5 77 8"/>
+        <path d="M50 98 Q50 76.3 50 36"/>
+        <path d="M50 98 Q24.7 72.45 4 25"/>
+        <path d="M50 98 Q75.3 72.1 96 24"/>
+        <path d="M50 98 Q43.4 87.5 38 68"/>
+        <path d="M50 98 Q57.7 87.15 64 67"/>
+      </g>
+      <!-- small filler blossoms, no photos, scattered through the gaps -->
+      <use href="#filler-a" fill="#f6c9db" transform="translate(9 78) rotate(-15) scale(1.1)"/>
+      <use href="#filler-a" fill="#e3cff7" transform="translate(91 78) rotate(15) scale(1.1)"/>
+      <use href="#filler-a" fill="#ffe2b8" transform="translate(50 82) rotate(0) scale(1.05)"/>
+      <use href="#filler-a" fill="#cdeadd" transform="translate(20 88) rotate(-10) scale(.95)"/>
+      <use href="#filler-a" fill="#f7c9c9" transform="translate(80 88) rotate(10) scale(.95)"/>
+      <use href="#filler-a" fill="#d8c6f2" transform="translate(12 55) rotate(20) scale(.85)"/>
+      <use href="#filler-a" fill="#cdeadd" transform="translate(88 54) rotate(-20) scale(.85)"/>
+      <use href="#filler-a" fill="#ffd8e8" transform="translate(36 32) rotate(35) scale(.8)"/>
+      <use href="#filler-a" fill="#c9e3f7" transform="translate(64 30) rotate(-35) scale(.8)"/>
+      <use href="#filler-a" fill="#fff0b3" transform="translate(23 9) rotate(15) scale(.7)"/>
+      <use href="#filler-a" fill="#e6d8ff" transform="translate(77 8) rotate(-15) scale(.7)"/>
+      <use href="#filler-a" fill="#ffd9c4" transform="translate(50 36) rotate(0) scale(.65)"/>
+      <use href="#filler-a" fill="#f6c9db" transform="translate(4 25) rotate(-25) scale(.7)"/>
+      <use href="#filler-a" fill="#cdeadd" transform="translate(96 24) rotate(25) scale(.7)"/>
+      <use href="#filler-a" fill="#e3cff7" transform="translate(38 68) rotate(-12) scale(.85)"/>
+      <use href="#filler-a" fill="#ffe2b8" transform="translate(64 67) rotate(12) scale(.85)"/>
+    </svg>
+
+    <!-- flowers are built by the script below -->
+    <div id="flowers"></div>
+
+    <!-- in front: wrapping paper and bow -->
+    <svg class="layer" viewBox="0 0 100 130" aria-hidden="true">
+      <path d="M14 84 L50 96 L42 130 Z" fill="var(--wrap-a)"/>
+      <path d="M86 84 L50 96 L58 130 Z" fill="var(--wrap-b)"/>
+      <path d="M14 84 Q50 76 86 84 L50 96 Z" fill="var(--wrap-c)"/>
+      <path d="M42 130 Q50 133 58 130 L50 96 Z" fill="var(--wrap-a)" opacity=".6"/>
+      <path d="M25 100 L75 100 L72.5 105 L27.5 105 Z" fill="var(--ribbon)"/>
+      <path d="M50 102.5 C42 94 35.5 98 37.5 104 C39.5 109 47 106.5 50 102.5Z" fill="var(--ribbon)"/>
+      <path d="M50 102.5 C58 94 64.5 98 62.5 104 C60.5 109 53 106.5 50 102.5Z" fill="var(--ribbon)"/>
+      <path d="M49 104 L44 118 M51 104 L56 118" stroke="var(--ribbon)" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="50" cy="102.6" r="2.1" fill="#b94670"/>
+    </svg>
+
+    <button class="note" id="note" tabindex="-1" aria-label="Read the note">
+      <span class="note-title">For you</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.6 1.1 4.6 2.7h2C14 6.1 15.600 5 17.600 5 21 5 23.100 8.400 21.600 11.800 19.500 16.300 12 21 12 21z"/></svg>
+      <span class="note-sub">tap to read</span>
+    </button>
+  </div>
+  <button class="hint" id="hint" aria-controls="stage">Tap</button>
+</div>
+
+<div class="screen" id="screen">
+  <div class="projector-scene" id="projScene">
+    <svg class="scene-art" viewBox="-80 0 300 215" aria-hidden="true">
+      <defs>
+        <linearGradient id="beamGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#fffaea" stop-opacity="1"/>
+          <stop offset=".4" stop-color="#fff8dd" stop-opacity=".5"/>
+          <stop offset="1" stop-color="#fff8dd" stop-opacity=".08"/>
+        </linearGradient>
+        <filter id="beamBlur" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3.2"/>
+        </filter>
+        <pattern id="picnicPattern" width="12" height="12" patternUnits="userSpaceOnUse">
+          <rect width="12" height="12" fill="#fbf3e6"/>
+          <rect width="6" height="6" fill="#c3453f"/>
+          <rect x="6" y="6" width="6" height="6" fill="#c3453f"/>
+        </pattern>
+        <radialGradient id="lanternGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#ffe9a8" stop-opacity=".9"/>
+          <stop offset="100%" stop-color="#ffe9a8" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+
+      <!-- light beam, behind the screen -->
+      <polygon class="beam-poly beam-halo" points="4,157 92,10 92,128" filter="url(#beamBlur)"/>
+      <polygon class="beam-poly" points="8,155.5 88,20 88,118"/>
+      <circle class="beam-poly beam-hotspot" cx="8" cy="155.5" r="6" fill="#fffef2" filter="url(#beamBlur)"/>
+
+      <!-- screen: tall stand + big frame -->
+      <line x1="145" y1="128" x2="145" y2="163" stroke="#b9b2a4" stroke-width="4" stroke-linecap="round"/>
+      <line x1="145" y1="150" x2="118" y2="164" stroke="#b9b2a4" stroke-width="3" stroke-linecap="round"/>
+      <line x1="145" y1="150" x2="172" y2="164" stroke="#b9b2a4" stroke-width="3" stroke-linecap="round"/>
+      <rect x="112" y="164" width="66" height="5" rx="2.5" fill="#a8a092"/>
+      <rect x="80" y="5" width="130" height="123" rx="4" fill="#efe9dd" stroke="#d9d1bf" stroke-width="1.2"/>
+      <rect class="canvas-idle" x="87" y="12" width="116" height="109" fill="#fbfaf6"/>
+
+      <g transform="translate(-70 15) translate(60 152) scale(1.15) translate(-60 -152)">
+        <!-- picnic blanket on the ground, projector sits on it -->
+        <path d="M-6 180 L130 182 L108 132 L10 132 Z" fill="url(#picnicPattern)"/>
+        <path d="M-6 180 L130 182 L108 132 L10 132 Z" fill="none" stroke="#e4d9c4" stroke-width="1.4" opacity=".8"/>
+
+        <!-- wine bottle -->
+        <g transform="translate(8 178)">
+          <rect x="-4" y="-24" width="8" height="24" rx="2" fill="#33502f"/>
+          <rect x="-1.1" y="-33" width="2.2" height="9" fill="#33502f"/>
+          <rect x="-1.6" y="-35.5" width="3.2" height="3" rx=".8" fill="#7a3b2e"/>
+          <rect x="-3" y="-15" width="6" height="7" fill="#f4ede0" opacity=".9"/>
+        </g>
+
+        <!-- two wine glasses -->
+        <g transform="translate(20 181) rotate(-5)">
+          <ellipse cx="0" cy="0" rx="3.2" ry="1" fill="#cfc6b2"/>
+          <rect x="-0.6" y="-9" width="1.2" height="9" fill="#cfc6b2"/>
+          <path d="M-4 -20 Q-4.5 -12 0 -9 Q4.5 -12 4 -20 Z" fill="#efe8da" opacity=".25" stroke="#cfc6b2" stroke-width=".5"/>
+          <ellipse cx="0" cy="-20" rx="4" ry="1.3" fill="#efe8da" opacity=".3" stroke="#cfc6b2" stroke-width=".5"/>
+          <path d="M-3 -13 Q-3.3 -10.5 0 -9 Q3.3 -10.5 3 -13 Q1.8 -14 0 -14 Q-1.8 -14 -3 -13 Z" fill="#7a2f3a" opacity=".9"/>
+        </g>
+        <g transform="translate(29 181) rotate(6)">
+          <ellipse cx="0" cy="0" rx="3.2" ry="1" fill="#cfc6b2"/>
+          <rect x="-0.6" y="-9" width="1.2" height="9" fill="#cfc6b2"/>
+          <path d="M-4 -20 Q-4.5 -12 0 -9 Q4.5 -12 4 -20 Z" fill="#efe8da" opacity=".25" stroke="#cfc6b2" stroke-width=".5"/>
+          <ellipse cx="0" cy="-20" rx="4" ry="1.3" fill="#efe8da" opacity=".3" stroke="#cfc6b2" stroke-width=".5"/>
+          <path d="M-3 -13 Q-3.3 -10.5 0 -9 Q3.3 -10.5 3 -13 Q1.8 -14 0 -14 Q-1.8 -14 -3 -13 Z" fill="#7a2f3a" opacity=".9"/>
+        </g>
+
+        <!-- soda can -->
+        <g transform="translate(122 180)">
+          <rect x="-3.5" y="-14" width="7" height="14" rx="1.4" fill="#e8792a"/>
+          <rect x="-3.5" y="-9" width="7" height="3" fill="#fbf3e6" opacity=".9"/>
+          <ellipse cx="0" cy="-14" rx="3.5" ry="1" fill="#d9d5c8"/>
+          <ellipse cx="0" cy="0" rx="3.5" ry="1" fill="#a8511a"/>
+        </g>
+
+        <!-- picnic basket beside the projector -->
+        <g transform="translate(82 138)">
+          <path d="M0 18 L4 34 L34 34 L38 18 Z" fill="#a9773f"/>
+          <path d="M0 18 L38 18 L35 24 L3 24 Z" fill="#8a5e30"/>
+          <path d="M8 18 C8 6 30 6 30 18" fill="none" stroke="#6e4a26" stroke-width="2.4"/>
+          <line x1="9" y1="20" x2="9" y2="32" stroke="#7a5228" stroke-width="1"/>
+          <line x1="16" y1="20" x2="16" y2="33" stroke="#7a5228" stroke-width="1"/>
+          <line x1="23" y1="20" x2="23" y2="33" stroke="#7a5228" stroke-width="1"/>
+          <line x1="30" y1="20" x2="30" y2="32" stroke="#7a5228" stroke-width="1"/>
+        </g>
+
+        <!-- little lantern, glowing warm -->
+        <circle cx="44" cy="150" r="16" fill="url(#lanternGlow)"/>
+        <g transform="translate(44 150)">
+          <path d="M-6 10 L6 10 L4 -6 L-4 -6 Z" fill="#f4d9a0" opacity=".9"/>
+          <rect x="-7" y="9" width="14" height="3" rx="1" fill="#7a5228"/>
+          <rect x="-1.6" y="-13" width="3.2" height="7" fill="#7a5228"/>
+          <path d="M-4 -6 L4 -6 L3 -12 L-3 -12 Z" fill="#7a5228"/>
+          <circle cx="0" cy="2" r="3.4" fill="#ffdb7a"/>
+        </g>
+
+        <!-- projector, tiny and low, on the blanket -->
+        <rect x="32" y="150" width="3" height="6" fill="#c9bda5"/>
+        <rect x="58" y="150" width="3" height="6" fill="#c9bda5"/>
+        <rect x="28" y="132" width="38" height="20" rx="5" fill="#f2e8d8" stroke="#d8c9ae" stroke-width=".8"/>
+        <circle cx="36" cy="132" r="4.2" fill="#e5d6bd" stroke="#d0bd9c" stroke-width=".5"/>
+        <circle cx="47" cy="132" r="3.6" fill="#e5d6bd" stroke="#d0bd9c" stroke-width=".5"/>
+        <line x1="33" y1="144" x2="33" y2="148" stroke="#d8c9ae" stroke-width="1" stroke-linecap="round"/>
+        <line x1="36" y1="144" x2="36" y2="148" stroke="#d8c9ae" stroke-width="1" stroke-linecap="round"/>
+        <line x1="39" y1="144" x2="39" y2="148" stroke="#d8c9ae" stroke-width="1" stroke-linecap="round"/>
+        <circle class="power-led" cx="33" cy="137" r="1.3"/>
+        <circle cx="70" cy="142" r="7" fill="#20202b"/>
+        <circle class="lens-glass" cx="70" cy="142" r="4.8"/>
+        <circle cx="68.3" cy="140.3" r="1.3" fill="#ffffff" opacity=".35"/>
+      </g>
+
+      <!-- little radio, beside and slightly under the screen -->
+      <g transform="translate(-64.5 -35.6) scale(1.3)">
+        <g id="radioGroup" class="radio-group">
+          <line x1="188" y1="142" x2="193" y2="128" stroke="#4a3b33" stroke-width="1.6" stroke-linecap="round"/>
+          <rect x="178" y="142" width="34" height="20" rx="4" fill="#d98c4a" stroke="#a8632c" stroke-width="1"/>
+          <circle cx="188" cy="152" r="6.5" fill="#f2d9b8" stroke="#a8632c" stroke-width=".8"/>
+          <circle cx="188" cy="152" r="2" fill="#a8632c" opacity=".5"/>
+          <circle cx="188" cy="149" r="1" fill="#a8632c" opacity=".4"/>
+          <circle cx="185" cy="154.5" r="1" fill="#a8632c" opacity=".4"/>
+          <circle cx="191" cy="154.5" r="1" fill="#a8632c" opacity=".4"/>
+          <!-- little sound-wave ripples, only animated while the song plays -->
+          <circle class="sound-wave w1" cx="188" cy="152" r="6.5"/>
+          <circle class="sound-wave w2" cx="188" cy="152" r="6.5"/>
+          <circle class="sound-wave w3" cx="188" cy="152" r="6.5"/>
+          <g id="radioBtn" class="radio-btn" role="button" tabindex="0" aria-label="Play the radio" aria-pressed="false">
+            <circle cx="204" cy="152" r="6.5" fill="#fff6e6" stroke="#a8632c" stroke-width=".8"/>
+            <path id="radioPlayIcon" d="M202 148 L202 156 L209 152 Z" fill="#a8632c"/>
+            <g id="radioPauseIcon" style="display:none;">
+              <rect x="201.6" y="148" width="2" height="8" fill="#a8632c"/>
+              <rect x="205.4" y="148" width="2" height="8" fill="#a8632c"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+
+    <audio id="radioAudio" loop preload="none">
+      <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="screen-canvas">
+      <img id="screenImg" alt="">
+      <div class="screen-placeholder" id="screenPlaceholder">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.7-9.6-9.2C.9 8.4 3 5 6.4 5c2 0 3.6 1.1 4.6 2.7h2C14 6.1 15.6 5 17.6 5 21 5 23.1 8.4 21.6 11.8 19.5 16.3 12 21 12 21z"/></svg>
+        <span id="screenHint">Hover a flower</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<dialog class="letter" id="letter" aria-labelledby="letter-to">
+  <div class="sheet">
+    <h2 id="letter-to"></h2>
+    <div id="letter-body"></div>
+    <p class="sign" id="letter-from"></p>
+    <button class="close" id="close">Close</button>
+  </div>
+</dialog>
+
+<!-- five butterflies, each on its own loose looping flight path -->
+<div class="butterflies" aria-hidden="true">
+  <svg class="bfly p1" style="--w:#f2a8c2" viewBox="0 0 40 30"><g class="wings"><path d="M20 15 C10 0 -2 4 4 16 C8 24 16 22 20 15Z"/><path d="M20 15 C30 0 42 4 36 16 C32 24 24 22 20 15Z"/></g><ellipse cx="20" cy="15" rx="1.5" ry="6.5" fill="#5a3d46"/></svg>
+  <svg class="bfly p2" style="--w:#c7a8ea" viewBox="0 0 40 30"><g class="wings"><path d="M20 15 C10 0 -2 4 4 16 C8 24 16 22 20 15Z"/><path d="M20 15 C30 0 42 4 36 16 C32 24 24 22 20 15Z"/></g><ellipse cx="20" cy="15" rx="1.5" ry="6.5" fill="#5a3d46"/></svg>
+  <svg class="bfly p3" style="--w:#f7c98a" viewBox="0 0 40 30"><g class="wings"><path d="M20 15 C10 0 -2 4 4 16 C8 24 16 22 20 15Z"/><path d="M20 15 C30 0 42 4 36 16 C32 24 24 22 20 15Z"/></g><ellipse cx="20" cy="15" rx="1.5" ry="6.5" fill="#5a3d46"/></svg>
+  <svg class="bfly p4" style="--w:#f4a488" viewBox="0 0 40 30"><g class="wings"><path d="M20 15 C10 0 -2 4 4 16 C8 24 16 22 20 15Z"/><path d="M20 15 C30 0 42 4 36 16 C32 24 24 22 20 15Z"/></g><ellipse cx="20" cy="15" rx="1.5" ry="6.5" fill="#5a3d46"/></svg>
+  <svg class="bfly p5" style="--w:#94bfe0" viewBox="0 0 40 30"><g class="wings"><path d="M20 15 C10 0 -2 4 4 16 C8 24 16 22 20 15Z"/><path d="M20 15 C30 0 42 4 36 16 C32 24 24 22 20 15Z"/></g><ellipse cx="20" cy="15" rx="1.5" ry="6.5" fill="#5a3d46"/></svg>
+</div>
+
+<script>
+/* ===========================================================
+   EDIT THESE
+   photos: one per flower (5). Use file paths like "photos/us-1.jpg"
+           or leave null to show a placeholder.
+   =========================================================== */
+const CONFIG = {
+  photos: ["Our photos/her10.jpeg", "Our photos/her9.jpeg", "Our photos/her3.jpeg", "Our photos/her4.jpeg", "Our photos/her5.jpeg", "Our photos/her6.jpeg", "Our photos/her7.jpeg", "Our photos/her8.jpeg"],
+  note: {
+    to: "Bbg,",
+    body: [
+      "I can’t believe it’s been only and already 1 month, I miss you like hellll, and it feels like I’ve known you for much longer",
+      "I don’t know how you do it but you are amazing. Every time I look into your eyes it feels like my thoughts are fading away 🥺, it’s almost magical. Talking to you is so easy that I don’t have to think sometimes.",
+      "You just came one day and decided to steal my heart with no warning, now it’s all yours so I hope you are happy with it",
+      "Thank you for being my favorite person, and for every photo we still haven't taken yet.",
+      "Happy first month babe and to many more",
+      "I love you ❤️❤️."
+    ],
+    from: "Your favourite dumbass,"
+  }
+};
+
+/* ---------- stems + leaves, generated from SPOTS so any count/layout works ---------- */
+const SPOTS = [
+  { x: 50, y: 9,  r: -4,  sc: .88, c: { light: '#ffd6e2', mid: '#f7a1bb', deep: '#e56b93', inner: '#ffe9f0' } }, // rose - top, farthest back
+  { x: 23, y: 16, r: -15, sc: .92, c: { light: '#e6d8ff', mid: '#bfa3f0', deep: '#8f6fd6', inner: '#f3ecff' } }, // lilac - upper left
+  { x: 78, y: 14, r: 13,  sc: .94, c: { light: '#fff0b3', mid: '#ffd86b', deep: '#f2ad2e', inner: '#fff8dc' } }, // butter - upper right
+  { x: 7,  y: 36, r: -19, sc: .98, c: { light: '#ffffff', mid: '#f9c9d8', deep: '#ec8fb0', inner: '#fff5f8' } }, // blush - outer left
+  { x: 93, y: 34, r: 17,  sc: 1,   c: { light: '#ffd9c4', mid: '#ffab86', deep: '#ee7a5a', inner: '#ffeee3' } }, // peach - outer right
+  { x: 21, y: 54, r: -9,  sc: 1.05,c: { light: '#fdeeff', mid: '#d9b8ea', deep: '#a86bc4', inner: '#fff5ff' } }, // orchid - mid left
+  { x: 80, y: 52, r: 9,   sc: 1.05,c: { light: '#e3f3ff', mid: '#9dc9ec', deep: '#5f96c9', inner: '#f2faff' } }, // periwinkle - mid right
+  { x: 50, y: 68, r: 3,   sc: 1.18,c: { light: '#ffe4ee', mid: '#f090ae', deep: '#d95c82', inner: '#fff0f5' } }  // rosewood - focal, front & center
+];
+const BASE = { x: 50, y: 98 }; // where every stem meets the wrapping paper
+
+function bez(p0, p1, p2, t) {
+  const mt = 1 - t;
+  return {
+    x: mt * mt * p0.x + 2 * mt * t * p1.x + t * t * p2.x,
+    y: mt * mt * p0.y + 2 * mt * t * p1.y + t * t * p2.y
+  };
+}
+function bezAngle(p0, p1, p2, t) {
+  const mt = 1 - t;
+  const dx = 2 * mt * (p1.x - p0.x) + 2 * t * (p2.x - p1.x);
+  const dy = 2 * mt * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
+  return Math.atan2(dy, dx) * 180 / Math.PI;
+}
+
+const stemsG = document.getElementById('stemsG');
+const leavesG = document.getElementById('leavesG');
+const svgNS = 'http://www.w3.org/2000/svg';
+
+SPOTS.forEach((s, i) => {
+  const p0 = BASE, p2 = { x: s.x, y: s.y };
+  const p1 = { x: 50 + (s.x - 50) * 0.55, y: BASE.y - (BASE.y - s.y) * 0.35 }; // gentle outward bow
+
+  const stem = document.createElementNS(svgNS, 'path');
+  stem.setAttribute('d', `M${p0.x} ${p0.y} Q${p1.x} ${p1.y} ${p2.x} ${p2.y}`);
+  stem.setAttribute('stroke-width', Math.abs(s.x - 50) < 3 ? '1.1' : '0.85');
+  stemsG.appendChild(stem);
+
+  // one leaf partway up the curve, angled to the stem and flipped by side
+  const side = s.x >= 50 ? 1 : -1;
+  const t = 0.6;
+  const pt = bez(p0, p1, p2, t);
+  const tangent = bezAngle(p0, p1, p2, t);
+  const leaf = document.createElementNS(svgNS, 'use');
+  leaf.setAttribute('href', '#leaf');
+  leaf.setAttribute('transform',
+    `translate(${pt.x.toFixed(2)} ${pt.y.toFixed(2)}) rotate(${(tangent + side * 55).toFixed(1)}) scale(${side < 0 ? -1.15 : 1.15} 1.15)`);
+  leavesG.appendChild(leaf);
+});
+
+
+function placeholder(i) {
+  const h = [340, 275, 15, 45, 320][i % 5];
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
+    <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0' stop-color='hsl(${h} 70% 84%)'/><stop offset='1' stop-color='hsl(${h + 30} 60% 70%)'/>
+    </linearGradient></defs>
+    <rect width='100' height='100' fill='url(#g)'/>
+    <circle cx='38' cy='42' r='11' fill='rgba(255,255,255,.8)'/>
+    <path d='M18 86 C18 64 58 64 58 86Z' fill='rgba(255,255,255,.8)'/>
+    <circle cx='64' cy='46' r='10' fill='rgba(255,255,255,.55)'/>
+    <path d='M46 90 C46 68 82 68 82 90Z' fill='rgba(255,255,255,.55)'/></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+function petals(cls, offset, count = 8) {
+  let out = '';
+  const step = 360 / count;
+  for (let i = 0; i < count; i++) {
+    let a = offset + i * step;
+    if (a > 180) a -= 360;               // signed angle keeps the "closed" bud tight
+    out += `<div class="petal ${cls}" style="--a:${a}deg"></div>`;
+  }
+  return out;
+}
+
+const flowersEl = document.getElementById('flowers');
+const CENTER = { x: 50, y: 42 }; // rough visual center of the cluster
+SPOTS.forEach((s, i) => {
+  const el = document.createElement('div');
+  el.className = 'flower';
+  el.tabIndex = 0;
+  el.setAttribute('role', 'img');
+  el.setAttribute('aria-label', `Photo ${i + 1} of us`);
+  // origin sits on the side TOWARD the center, so scaling pushes the flower AWAY from it
+  const ox = Math.max(15, Math.min(85, 50 - (s.x - CENTER.x) * 0.5));
+  const oy = Math.max(15, Math.min(85, 50 - (s.y - CENTER.y) * 0.5));
+  el.style.cssText =
+    `--x:${s.x};--y:${s.y};--d:${(i * 0.11).toFixed(2)}s;--r:${s.r}deg;--fs:${s.sc};` +
+    `--ox:${ox.toFixed(0)}%;--oy:${oy.toFixed(0)}%;` +
+    `--light:${s.c.light};--mid:${s.c.mid};--deep:${s.c.deep};--inner:${s.c.inner}`;
+  el.innerHTML =
+    petals('outer', 0, 10) + petals('mid', 18, 10) + petals('inner', 6, 8) +
+    `<div class="core"><img alt="Photo of us, ${i + 1}" src="${CONFIG.photos[i] || placeholder(i)}"></div>`;
+  flowersEl.appendChild(el);
+
+  // hovering (or tapping) a flower's photo shows it larger on the side screen
+  const coreImg = el.querySelector('.core img');
+  const showThis = e => { e.stopPropagation(); showOnScreen(coreImg.src, i); };
+  coreImg.addEventListener('mouseenter', showThis);
+  coreImg.addEventListener('click', showThis);
+  coreImg.addEventListener('focus', showThis);
+  el.addEventListener('mouseleave', hideScreen);
+});
+
+/* ---------- side screen ---------- */
+const screenImg = document.getElementById('screenImg');
+const screenPlaceholder = document.getElementById('screenPlaceholder');
+const screenHint = document.getElementById('screenHint');
+const projScene = document.getElementById('projScene');
+let screenShownIndex = null;
+
+function showOnScreen(src, i) {
+  projScene.classList.add('on');
+  screenImg.classList.remove('active');
+  void screenImg.offsetWidth; // restart the pop-in animation even if a photo is already showing
+  screenImg.src = src;
+  screenImg.alt = `Photo ${i + 1} of us, enlarged`;
+  screenPlaceholder.classList.add('hide');
+  requestAnimationFrame(() => screenImg.classList.add('active'));
+  screenShownIndex = i;
+}
+function hideScreen() {
+  projScene.classList.remove('on');
+  screenImg.classList.remove('active');
+  screenPlaceholder.classList.remove('hide');
+  screenShownIndex = null;
+}
+if (window.matchMedia && window.matchMedia('(hover: none)').matches) {
+  screenHint.textContent = 'Tap a flower';
+}
+
+/* ---------- interaction ---------- */
+const stage  = document.getElementById('stage');
+const hint   = document.getElementById('hint');
+const note   = document.getElementById('note');
+const letter = document.getElementById('letter');
+let isOpen = false;
+
+function setOpen(v) {
+  isOpen = v;
+  stage.classList.toggle('open', v);
+  hint.textContent = v ? 'Close' : 'Tap';
+  note.tabIndex = v ? 0 : -1;
+}
+stage.addEventListener('click', e => {
+  if (e.target.closest('.note')) return;
+  if (isOpen && e.target.closest('.flower')) return; // let an open flower be admired without closing the bouquet
+  setOpen(!isOpen);
+});
+hint.addEventListener('click', e => { e.stopPropagation(); setOpen(!isOpen); });
+
+document.getElementById('letter-to').textContent = CONFIG.note.to;
+document.getElementById('letter-body').innerHTML =
+  CONFIG.note.body.map(p => `<p>${p.replace(/</g, '&lt;')}</p>`).join('');
+document.getElementById('letter-from').textContent = CONFIG.note.from;
+
+note.addEventListener('click', e => {
+  e.stopPropagation();
+  try { letter.showModal(); } catch (_) { letter.setAttribute('open', ''); }
+});
+document.getElementById('close').addEventListener('click', () => letter.close());
+letter.addEventListener('click', e => { if (e.target === letter) letter.close(); });
+
+/* ---- little radio: click to play/pause the song (drop your mp3 in as song.mp3, or edit the <source> src) ---- */
+(() => {
+  const btn = document.getElementById('radioBtn');
+  const radioGroup = document.getElementById('radioGroup');
+  const playIcon = document.getElementById('radioPlayIcon');
+  const pauseIcon = document.getElementById('radioPauseIcon');
+  const audio = document.getElementById('radioAudio');
+  let playing = false;
+
+  function setPlaying(v) {
+    playing = v;
+    playIcon.style.display = v ? 'none' : '';
+    pauseIcon.style.display = v ? '' : 'none';
+    radioGroup.classList.toggle('playing', v);
+    btn.setAttribute('aria-pressed', String(v));
+    btn.setAttribute('aria-label', v ? 'Pause the radio' : 'Play the radio');
+    if (v) {
+      audio.play().catch(() => setPlaying(false)); // no audio file yet, or browser blocked it
+    } else {
+      audio.pause();
+    }
+  }
+
+  audio.addEventListener('ended', () => setPlaying(false));
+  btn.addEventListener('click', e => { e.stopPropagation(); setPlaying(!playing); });
+  btn.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); setPlaying(!playing); }
+  });
+})();
+
+/* ---- keep the whole scene inside the viewport: measure its natural
+   (unscaled) footprint -- including the bouquet's translateY offset --
+   and shrink it just enough to fit, so the page never needs to scroll ---- */
+(() => {
+  const layoutEl = document.querySelector('.layout');
+  const stageEl = document.getElementById('stage');
+  const screenEl = document.getElementById('screen');
+  if (!layoutEl || !stageEl) return;
+
+  let raf = null;
+
+  function measureAndFit() {
+    layoutEl.style.transform = 'none'; // reset so we measure the natural size
+    // force a reflow before reading rects
+    void layoutEl.offsetHeight;
+
+    const stageRect = stageEl.getBoundingClientRect();
+    const screenRect = screenEl ? screenEl.getBoundingClientRect() : stageRect;
+
+    const top = Math.min(stageRect.top, screenRect.top);
+    const bottom = Math.max(stageRect.bottom, screenRect.bottom);
+    const left = Math.min(stageRect.left, screenRect.left);
+    const right = Math.max(stageRect.right, screenRect.right);
+
+    const contentWidth = right - left;
+    const contentHeight = bottom - top;
+    if (contentWidth <= 0 || contentHeight <= 0) return;
+
+    const vv = window.visualViewport;
+    const vw = vv ? vv.width : window.innerWidth;
+    const vh = vv ? vv.height : window.innerHeight;
+
+    const margin = 20; // small safety margin so nothing touches the edge
+    const availW = Math.max(1, vw - margin);
+    const availH = Math.max(1, vh - margin);
+
+    let scale = Math.min(1, availW / contentWidth, availH / contentHeight);
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+
+    layoutEl.style.transform = scale < 1 ? `scale(${scale})` : 'none';
+  }
+
+  function scheduleFit() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(measureAndFit);
+  }
+
+  scheduleFit();
+  window.addEventListener('load', scheduleFit);
+  window.addEventListener('resize', scheduleFit);
+  window.addEventListener('orientationchange', scheduleFit);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleFit);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleFit);
+  // the bouquet's opening animation can take a little over a second to settle
+  stage.addEventListener('click', () => setTimeout(scheduleFit, 1700));
+})();
+</script>
+</body>
+</html>
